@@ -28,7 +28,7 @@ feature {NONE} -- Initialization
 
 	make_from_arguments
 		local
-			args: ARGUMENTS
+			args: ARGUMENTS_32
 		do
 			make_empty
 			create args
@@ -52,7 +52,7 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	arguments: LIST [STRING_32]
+	arguments: LIST [READABLE_STRING_32]
 
 	is_empty: BOOLEAN
 		do

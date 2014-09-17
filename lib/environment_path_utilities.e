@@ -71,13 +71,13 @@ feature -- Access
 					Result.extend (n.item)
 				end
 			end
-			if (nb > 0 and Result.count < nb) and attached environment_paths as lst then
+			if ((nb = 0) or (nb > 0 and Result.count < nb)) and attached environment_paths as lst then
 				if {PLATFORM}.is_windows then
 					lst.start
 					lst.put (execution_environment.current_working_path)
 				end
 				across
-					 lst as c
+					lst as c
 				until
 					nb > 0 and then Result.count >= nb
 				loop
