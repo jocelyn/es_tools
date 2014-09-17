@@ -43,11 +43,17 @@ feature -- Execution
 			ctx: ES_COMMAND_CONTEXT
 			n: detachable READABLE_STRING_GENERAL
 			cmd: detachable ES_COMMAND
+			args: ARGUMENTS_32
 		do
 			if a_context.logo_enabled then
 				io.put_string ("-- ")
 				printer.localized_print (manager.logo)
 				io.put_new_line
+				if a_context.is_verbose then
+					create args
+					printer.localized_print (args.argument (0))
+					io.put_new_line
+				end
 				io.put_new_line
 				ctx := a_context.without_logo
 			else
