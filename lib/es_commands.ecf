@@ -7,10 +7,8 @@
 			<exclude>/.svn$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
-		<option warning="true" is_obsolete_routine_type="true">
-		</option>
 		<capability>
-			<concurrency support="none"/>
+			<concurrency support="scoop"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="encoding" location="$ISE_LIBRARY\library\encoding\encoding.ecf"/>

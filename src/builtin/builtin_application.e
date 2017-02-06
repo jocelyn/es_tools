@@ -9,7 +9,7 @@ class
 
 inherit
 	APPLICATION
-		redefine 
+		redefine
 			initialize_commands
 		end
 
@@ -28,6 +28,7 @@ feature {NONE} -- Initialization
 			manager.register (create {ES_SETUP_COMMAND}, "setup")
 			manager.register (create {ES_WHICH_COMMAND}, "which")
 			manager.register (create {ES_CONCURRENT_COMMAND}, "concurrent")
+			manager.register (create {ES_RESET_KEYWORDS_COMMAND}, "reset_keywords")
 		end
 
 end
