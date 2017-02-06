@@ -1,0 +1,14 @@
+note
+	description: "Summary description for {ES_RESET_KEYWORDS_COMMAND}."
+	date: "$Date: 2016-12-05 18:39:47 +0100 (lun., 05 déc. 2016) $"
+	author: "$Author: someone$"
+	revision: "$Revision: 123456$"
+
+class
+	TEST
+
+inherit
+	ANY
+
+
+end
