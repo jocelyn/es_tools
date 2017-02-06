@@ -57,13 +57,6 @@ feature -- Execution
 	execute (ctx: ES_COMMAND_CONTEXT)
 		local
 			manager: ES_COMMAND_MANAGER
-			choices: HASH_TABLE [TUPLE [cmd: ES_COMMAND; name: STRING_32] , INTEGER]
-			i: INTEGER
-			cmd: detachable ES_COMMAND
-			quit: BOOLEAN
-			l_help: BOOLEAN
-			s: STRING
-			menu: ES_MENU_COMMAND
 		do
 			create manager.make
 			manager.import_all_from (path)

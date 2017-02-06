@@ -58,16 +58,27 @@ feature -- Change
 feature -- Execution
 
 	execute (ctx: ES_COMMAND_CONTEXT)
+		local
+			l_done: BOOLEAN
 		do
-			if
-				not ctx.is_empty and then
-				attached manager.command (ctx.arguments.first) as cmd
-			then
-				cmd.execute (ctx.without_first_argument)
-			elseif ctx.is_shell then
-				(create {ES_MENU_COMMAND}.make_with_manager (manager)).execute (ctx)
-			else
-				(create {ES_HELP_COMMAND}.make_with_manager (manager)).execute (ctx)
+			if not ctx.is_empty then
+				if
+					attached manager.command (ctx.arguments.first) as cmd and then
+					cmd.is_available
+				then
+					l_done := True
+					ctx.set_command_name (ctx.arguments.first)
+					cmd.execute (ctx.without_first_argument)
+				else
+					localized_print_error ({STRING_32} "[ERROR] Invalid command: " + ctx.arguments.first + "!%N%N")
+				end
+			end
+			if not l_done then
+				if ctx.is_shell then
+					(create {ES_MENU_COMMAND}.make_with_manager (manager)).execute (ctx)
+				else
+					(create {ES_HELP_COMMAND}.make_with_manager (manager)).execute (ctx)
+				end
 			end
 		end
 

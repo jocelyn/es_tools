@@ -54,7 +54,7 @@ feature -- Execution
 	execute (a_context: ES_COMMAND_CONTEXT)
 		local
 			ctx: ES_COMMAND_CONTEXT
-			choices: HASH_TABLE [TUPLE [cmd: ES_COMMAND; name: STRING_32] , INTEGER]
+			choices: HASH_TABLE [TUPLE [cmd: ES_COMMAND; name: READABLE_STRING_GENERAL] , INTEGER]
 			i: INTEGER
 			cmd: detachable ES_COMMAND
 			quit: BOOLEAN

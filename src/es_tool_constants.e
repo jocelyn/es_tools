@@ -9,18 +9,16 @@ class
 
 feature -- Constants
 
-	product_name: STRING_32 = "Eiffel Software Tools"
+	product_name: STRING_32 = "Tool-Launcher"
 
-	version_major: NATURAL_16 = 0
+	version_major: NATURAL_16 = 1
 
-	version_minor: NATURAL_16 = 2
+	version_minor: NATURAL_16 = 0
 
-	es_config_folder: STRING_32 = ".es"
-
-	es_ini_filename: STRING_32 = "es.ini"
+	es_ini_filename: STRING_32 = "config"
 
 	es_info_extension: STRING_32 = "es-info"
 
-	group_separator: CHARACTER_32 = ':'
+	group_separator: CHARACTER_8 = ':'
 
 end

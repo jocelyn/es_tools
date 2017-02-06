@@ -9,3 +9,6 @@ description=GIT client
 [uuid]
 path=.\bin\uuid.exe
 description=UUID generator
+
+[layout]
+status=disabled

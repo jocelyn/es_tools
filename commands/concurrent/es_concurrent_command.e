@@ -48,15 +48,18 @@ feature -- Execution
 				until
 					i > n
 				loop
-					create wk.make (agent (nb: INTEGER; a_cmd: READABLE_STRING_32)
+					create wk.make (agent (a_proc_id: INTEGER; nb: INTEGER; a_cmd: READABLE_STRING_32; is_verbose: BOOLEAN)
 						local
 							p: INTEGER
 						do
-							from p := nb until p = 0 loop
+							from p := 1 until p > nb loop
+								if is_verbose then
+									print ("> #" + a_proc_id.out + "." + p.out + "%N")
+								end
 								execution_environment.system (a_cmd)
-								p := p - 1
+								p := p + 1
 							end
-						end(m, cmd.twin)
+						end(i, m, cmd.twin, ctx.is_verbose)
 					)
 					threads.force (wk)
 					i := i + 1
@@ -69,6 +72,8 @@ feature -- Execution
 				end
 
 				join_all
+			else
+				execute_help (ctx)
 			end
 		end
 

@@ -59,6 +59,9 @@ feature -- Access
 			Result := arguments.is_empty
 		end
 
+	command_name: detachable READABLE_STRING_32
+			-- Name used to invoke command.
+
 feature -- Settings
 
 	is_verbose: BOOLEAN
@@ -133,6 +136,11 @@ feature -- Settings change
 			set_is_verbose (ctx.is_verbose)
 			set_is_shell (ctx.is_shell)
 			set_logo_enabled (ctx.logo_enabled)
+		end
+
+	set_command_name (a_name: like command_name)
+		do
+			command_name := a_name
 		end
 
 feature {ES_COMMAND_CONTEXT} -- Change

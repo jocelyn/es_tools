@@ -7,6 +7,9 @@ note
 deferred class
 	ES_COMMAND
 
+inherit
+	DEBUG_OUTPUT
+
 feature -- Status report
 
 	is_available: BOOLEAN
@@ -18,6 +21,17 @@ feature -- Access
 
 	description: detachable IMMUTABLE_STRING_32
 		deferred
+		end
+
+feature -- Status report
+
+	debug_output: STRING_32
+			-- String that should be displayed in debugger to represent `Current'.
+		do
+			create Result.make (0)
+			if attached description as desc then
+				Result.append (desc)
+			end
 		end
 
 feature -- Execution

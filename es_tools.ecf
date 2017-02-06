@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-16-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-16-0 http://www.eiffel.com/developers/xml/configuration-1-16-0.xsd" name="es_tools" uuid="41A7A0F8-8C31-4DAA-878A-0DC20901F142">
+	<target name="es_tools">
+		<root class="APPLICATION" feature="make"/>
+		<file_rule>
+			<exclude>/.git$</exclude>
+			<exclude>/.svn$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option warning="true" is_obsolete_routine_type="true">
+		</option>
+		<setting name="console_application" value="true"/>
+		<setting name="executable_name" value="es"/>
+		<capability>
+			<concurrency support="scoop" use="thread"/>
+			<void_safety support="transitional"/>
+		</capability>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="encoding" location="$ISE_LIBRARY\library\encoding\encoding.ecf"/>
+		<library name="es_commands" location="lib\es_commands.ecf" readonly="false"/>
+		<library name="process" location="$ISE_LIBRARY\library\process\process.ecf"/>
+		<library name="string_expander" location="$EIFFEL_SRC\framework\string_expander\string_expander.ecf"/>
+		<cluster name="src" location=".\src\">
+			<cluster name="commands" location="$|commands\"/>
+		</cluster>
+	</target>
+	<target name="es_builtin_tools" extends="es_tools">
+		<root class="BUILTIN_APPLICATION" feature="make"/>
+		<library name="command_concurrent" location="commands\concurrent\concurrent.ecf" readonly="false"/>
+		<library name="command_es_setup" location="commands\es_setup\es_setup.ecf" readonly="false"/>
+		<library name="command_layout" location="commands\layout\layout.ecf" readonly="false"/>
+		<library name="command_uuid" location="commands\uuid\uuid.ecf" readonly="false"/>
+		<library name="command_which" location="commands\which\which.ecf" readonly="false"/>
+		<cluster name="src_builtin" location=".\src\builtin\"/>
+	</target>
+</system>

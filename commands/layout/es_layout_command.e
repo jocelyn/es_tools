@@ -30,20 +30,41 @@ feature -- Execution
 
 	execute_command (ctx: ES_COMMAND_CONTEXT)
 		local
-			layout: ES_EIFFEL_LAYOUT
+			layout: ES_EIFFEL_VERSIONED_LAYOUT
+			is_verbose: BOOLEAN
 		do
-			create layout
+			is_verbose := ctx.is_verbose
+			if across ctx.arguments as ic some ic.item.same_string_general ("-v") end then
+				is_verbose := True
+			end
+
+			if attached execution_environment.item ("ES_EIFFEL_VERSION") as v and then v.is_valid_as_string_8 then
+				create layout.make_with_version (v.to_string_8)
+			else
+				create layout
+			end
 			set_eiffel_layout (layout)
 
 			printer.localized_print ("Eiffel variables:")
 			io.put_new_line
-			display_environ_variable ("ISE_EIFFEL")
-			display_environ_variable ("ISE_LIBRARY")
-			display_environ_variable ("ISE_PLATFORM")
-			display_environ_variable ("ISE_C_COMPILER")
-			display_environ_variable ("ISE_CFLAGS")
-			display_environ_variable ("ISE_EC_FLAGS")
-			display_environ_variable ("ISE_PROJECTS")
+			across
+				<<
+					"ISE_EIFFEL",
+					"ISE_LIBRARY", "EIFFEL_LIBRARY",
+					"ISE_PLATFORM",
+					"ISE_C_COMPILER", "ISE_C_COMPILER_VER", "ISE_CFLAGS",
+					"ISE_EC_FLAGS",
+					"ISE_PROJECTS",
+					"ISE_USER_FILES",
+					"ISE_APP_DATA",
+					"EC_NAME",
+					"ISE_IRON_PATH",
+					"IRON_PATH"
+				>> as ic
+			loop
+				display_environ_variable (ic.item, is_verbose)
+			end
+
 			io.put_new_line
 
 			printer.localized_print ("Eiffel folders:")
@@ -79,13 +100,18 @@ feature -- Execution
 			io.put_new_line
 		end
 
-	display_environ_variable  (n: READABLE_STRING_GENERAL)
+	display_environ_variable  (n: READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
 		do
 			if attached execution_environment.item (n) as v then
 				printer.localized_print (" - ")
 				printer.localized_print (n)
 				printer.localized_print ("=")
 				printer.localized_print (v)
+				io.put_new_line
+			elseif is_verbose then
+				printer.localized_print (" - ")
+				printer.localized_print (n)
+				printer.localized_print (" is not set!")
 				io.put_new_line
 			end
 		end

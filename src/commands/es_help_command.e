@@ -70,7 +70,7 @@ feature -- Execution
 					cmd := Void
 				end
 			end
-			if n /= Void and cmd /= Void then
+			if n /= Void and then cmd /= Void and then cmd.is_available then
 				display_short_help (cmd, n)
 				io.put_new_line
 				cmd.execute (ctx)
@@ -80,31 +80,63 @@ feature -- Execution
 		end
 
 	execute_help
+		local
+			n: INTEGER
 		do
+			n := 0
+
 			across
 				manager as c
 			loop
-				if attached {ES_PATH_GROUP_COMMAND} c.item as m then
-					io.put_string ("+ ")
-					display_short_help (m, c.key)
+				if c.item.is_available then
+					n := n.max (c.key.count)
 				end
 			end
+
+				-- Display commands
 			across
 				manager as c
 			loop
-				if not attached {ES_PATH_GROUP_COMMAND} c.item then
-					display_short_help (c.item, c.key)
+				if
+					c.item.is_available
+				then
+					if attached {ES_GROUP_COMMAND} c.item as grp then
+--						io.put_string ("+ ")
+						display_short_help (grp, string_adapted_to_width (c.key, n))
+
+					else
+						display_short_help (c.item, string_adapted_to_width (c.key, n))
+					end
 				end
+			end
+		end
+
+	string_adapted_to_width (s: READABLE_STRING_GENERAL; n: INTEGER): STRING_32
+		do
+			from
+				create Result.make_from_string_general (s)
+			until
+				Result.count >= n
+			loop
+				Result.append_character (' ')
 			end
 		end
 
 	display_short_help (cmd: ES_COMMAND; a_name: READABLE_STRING_GENERAL)
 		do
+			io.put_string (" ")
 			printer.localized_print (a_name)
 			if attached cmd.description as d then
-				io.put_string (":%T")
+				io.put_string (" : ")
 				printer.localized_print (d)
 			end
+			if attached {ES_GROUP_COMMAND} cmd as grp then
+				if cmd.description = Void then
+					io.put_string (" > ")
+				end
+				io.put_string (" ... ")
+			end
+
 			io.put_new_line
 		end
 

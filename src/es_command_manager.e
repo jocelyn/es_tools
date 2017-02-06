@@ -8,7 +8,7 @@ class
 	ES_COMMAND_MANAGER
 
 inherit
-	TABLE_ITERABLE [ES_COMMAND, STRING_32]
+	TABLE_ITERABLE [ES_COMMAND, READABLE_STRING_GENERAL]
 
 	LOCALIZED_PRINTER
 
@@ -21,6 +21,7 @@ feature {NONE} -- Initialization
 	make
 		do
 			create items.make (0)
+			create observers.make (0)
 		end
 
 feature -- Access
@@ -35,6 +36,19 @@ feature -- Access
 			Result.append ({ES_TOOL_CONSTANTS}.version_minor.out)
 			Result.append (")")
 		end
+
+feature -- Callback
+
+	on_path_import (p: PATH)
+		do
+			across
+				observers as ic
+			loop
+				ic.item.on_path_import (p)
+			end
+		end
+
+	observers: ARRAYED_LIST [ES_COMMAND_MANAGER_OBSERVER]
 
 feature -- Change
 
@@ -66,6 +80,7 @@ feature -- Change
 		end
 
 	import (a_path: PATH)
+			-- Import config file at `a_path`.
 		local
 			f: PLAIN_TEXT_FILE
 			l_line: STRING_8
@@ -73,10 +88,11 @@ feature -- Change
 			utf: UTF_CONVERTER
 			cmd: detachable ES_EXECUTABLE_COMMAND
 			l_name: detachable STRING_8
-			s: STRING_8
+			s,v: STRING_8
 			p: PATH
 			str_exp: STRING_ENVIRONMENT_EXPANDER
 		do
+			on_path_import (a_path)
 			debug
 				print ("Import " + a_path.name + "%N")
 			end
@@ -95,9 +111,19 @@ feature -- Change
 				loop
 					l_line.left_adjust
 					if l_line.is_empty or l_line.starts_with ("#") then
-						-- ignore
+							-- commented line -> ignore
+					elseif l_line.starts_with_general ("@include=") then
+						v := l_line.substring (("@include=").count + 1, l_line.count)
+						v.left_adjust
+						v.right_adjust
+						create p.make_from_string (str_exp.expand_string_32 (utf.utf_8_string_8_to_string_32 (v), True))
+						if not p.is_absolute and then attached a_path.parent as l_parent then
+							p := l_parent.extended_path (p)
+						end
+						import (p.canonical_path)
 					else
 						if l_line.starts_with ("[") then
+								-- New command declaration.
 							if l_name /= Void and cmd /= Void then
 								register (cmd, l_name)
 							end
@@ -106,6 +132,7 @@ feature -- Change
 							l_name.left_adjust
 							l_name.right_adjust
 							if l_name.same_string ("*") then
+									-- '*' , usually redirect to a path
 								cmd := Void
 							else
 								create cmd.make (create {PATH}.make_from_string (l_name))
@@ -132,6 +159,16 @@ feature -- Change
 									s.left_adjust
 									s.right_adjust
 									cmd.set_description (utf.utf_8_string_8_to_string_32 (s))
+								elseif s.same_string ("arguments") then
+									s := l_line.substring (i + 1, l_line.count)
+									s.left_adjust
+									s.right_adjust
+									cmd.set_arguments (utf.utf_8_string_8_to_string_32 (s))
+								elseif s.same_string ("status") then
+									s := l_line.substring (i + 1, l_line.count)
+									s.left_adjust
+									s.right_adjust
+									cmd.set_status (s)
 								end
 							end
 						elseif l_name /= Void and then l_name.same_string ("*") then
@@ -141,6 +178,7 @@ feature -- Change
 								s := l_line.substring (1, i - 1)
 								s.right_adjust
 								if s.same_string ("path") then
+										-- Import all from associated path
 									s := l_line.substring (i + 1, l_line.count)
 									s.left_adjust
 									s.right_adjust
@@ -168,7 +206,7 @@ feature -- Change
 			a_dir_exists: (create {DIRECTORY}.make_with_path (a_dir)).exists
 		local
 			f: PLAIN_TEXT_FILE
-			s,n: STRING_32
+			s,n,v: STRING_32
 			l_name: detachable STRING_32
 			i: INTEGER
 			p,fn: PATH
@@ -177,6 +215,7 @@ feature -- Change
 			menu: ES_PATH_GROUP_COMMAND
 			utf: UTF_CONVERTER
 		do
+			on_path_import (a_dir)
 			import (a_dir.extended ({ES_TOOL_CONSTANTS}.es_ini_filename))
 
 			create dir.make_with_path (a_dir)
@@ -195,9 +234,9 @@ feature -- Change
 							register (menu, c.item.name)
 						else
 							s := p.name
-							if s.ends_with ({STRING_32} "." + {ES_TOOL_CONSTANTS}.es_info_extension) then
+							if attached p.extension as ext and then ext.is_case_insensitive_equal_general ({ES_TOOL_CONSTANTS}.es_info_extension) then
 								create f.make_with_path (p)
-								if f.exists and then f.is_readable then
+								if f.exists and then f.is_access_readable then
 									create fn.make_from_string (s.substring (1, s.count - 1 - {ES_TOOL_CONSTANTS}.es_info_extension.count))
 									f.reset_path (fn)
 									if f.exists then
@@ -232,6 +271,13 @@ feature -- Change
 														cmd.set_description (s.substring (i + 1, s.count))
 													elseif n.same_string ("name") then
 														l_name := s.substring (i + 1, s.count)
+													elseif n.same_string ("arguments") then
+														cmd.set_arguments (s.substring (i + 1, s.count))
+													elseif n.same_string ("status") then
+														v := s.substring (i + 1, s.count)
+														v.left_adjust
+														v.right_adjust
+														cmd.set_status (v)
 													end
 												end
 											end
@@ -256,9 +302,7 @@ feature  -- Access
 
 	command (n: READABLE_STRING_GENERAL): detachable ES_COMMAND
 		do
-			if n.is_valid_as_string_8 then
-				Result := items.item (n.to_string_8)
-			end
+			Result := items.item (n)
 		end
 
 	count: INTEGER
@@ -275,11 +319,11 @@ feature -- Status report
 
 feature {NONE} -- Access
 
-	items: HASH_TABLE [ES_COMMAND, STRING_32]
+	items: STRING_TABLE [ES_COMMAND]
 
 feature -- Cursor
 
-	new_cursor: TABLE_ITERATION_CURSOR [ES_COMMAND, STRING_32]
+	new_cursor: TABLE_ITERATION_CURSOR [ES_COMMAND, READABLE_STRING_GENERAL]
 			-- Fresh cursor associated with current structure
 		do
 			Result := items.new_cursor

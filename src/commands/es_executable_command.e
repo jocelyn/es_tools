@@ -30,8 +30,10 @@ feature -- Status report
 		local
 			f: RAW_FILE
 		do
-			create f.make_with_path (resolved_executable_path)
-			Result := f.exists
+			if not is_disabled then
+				create f.make_with_path (resolved_executable_path)
+				Result := f.exists
+			end
 		end
 
 	is_path_executable: BOOLEAN
@@ -43,9 +45,16 @@ feature -- Status report
 			Result := f.exists and then f.is_executable -- FIXME: why not is_access_executable ?
 		end
 
+	is_disabled: BOOLEAN
+			-- Is command disabled?
+			--| usually by configuration.
+
 feature -- Access
 
 	description: detachable IMMUTABLE_STRING_32
+
+	arguments: detachable READABLE_STRING_32
+			-- Optional arguments
 
 feature -- Change
 
@@ -59,6 +68,18 @@ feature -- Change
 			description := d
 		end
 
+	set_arguments (args: like arguments)
+		do
+			arguments := args
+		end
+
+	set_status (s: READABLE_STRING_GENERAL)
+		do
+			if s.is_case_insensitive_equal ("disabled") then
+				is_disabled := True
+			end
+		end
+
 feature -- Execution
 
 	execute (ctx: ES_COMMAND_CONTEXT)
@@ -67,6 +88,10 @@ feature -- Execution
 			o: detachable STRING_8
 		do
 			create s.make_from_string (resolved_executable_path.name)
+			if attached arguments as args then
+				s.append_character (' ')
+				s.append_string_general (args)
+			end
 			across
 				ctx.arguments as c
 			loop
@@ -95,7 +120,7 @@ feature {NONE} -- Implementation
 		do
 			Result := executable
 			create f.make_with_path (executable)
-			if f.exists and then f.is_executable then -- FIXME: why not is_access_executable ?
+			if f.exists and then f.is_access_executable then
 				Result := executable
 			elseif executable.parent = Void then
 					-- Do not resolved  foo/bar .. since it is about a precise path
