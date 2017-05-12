@@ -34,7 +34,7 @@ feature -- Execution
 			args: LIST [READABLE_STRING_32]
 			ut: FILE_UTILITIES
 			l_extension, l_arg: READABLE_STRING_32
-			l_simulation: BOOLEAN
+			l_verbose, l_simulation: BOOLEAN
 		do
 			create u
 			args := ctx.arguments
@@ -50,6 +50,8 @@ feature -- Execution
 						l_recursive := True
 					elseif l_arg.is_case_insensitive_equal ("-s") or l_arg.is_case_insensitive_equal ("--simulation") then
 						l_simulation := True
+					elseif l_arg.is_case_insensitive_equal ("-v") or l_arg.is_case_insensitive_equal ("--verbose") then
+						l_verbose := True
 					elseif l_arg.is_case_insensitive_equal ("-e") or l_arg.is_case_insensitive_equal ("--extension") then
 						args.forth
 						if args.after then
@@ -70,42 +72,46 @@ feature -- Execution
 				l_targets as c
 			loop
 				create p.make_from_string (c.item)
-				reset_keywords_on_entry (p, l_recursive, l_simulation, l_extension)
+				reset_keywords_on_entry (p, l_recursive, l_simulation, l_extension, l_verbose)
 			end
 		end
 
-	reset_keywords_on_entry (p: PATH; is_recursive: BOOLEAN; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL)
+	reset_keywords_on_entry (p: PATH; is_recursive: BOOLEAN; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
 		local
 			ut: FILE_UTILITIES
 		do
 			if ut.file_path_exists (p) then
 				if ext /= Void then
 					if attached p.extension as e and then ext.same_string (e) then
-						reset_keywords_on_file (p, is_simulation)
+						reset_keywords_on_file (p, is_simulation, is_verbose)
 					else
 						-- Skipped
-						printer.localized_print ("Skipped entry %"")
-						printer.localized_print (p.name)
-						printer.localized_print ("%": not expected extension ")
-						printer.localized_print (ext)
-						printer.localized_print ("!%N")
+						if is_verbose then
+							printer.localized_print ("Skipped entry %"")
+							printer.localized_print (p.name)
+							printer.localized_print ("%": not expected extension ")
+							printer.localized_print (ext)
+							printer.localized_print ("!%N")
+						end
 					end
 				else
-					reset_keywords_on_file (p, is_simulation)
+					reset_keywords_on_file (p, is_simulation, is_verbose)
 				end
 			elseif ut.directory_path_exists (p) then
 				if is_recursive then
-					reset_keywords_on_folder (p, is_simulation, ext)
+					reset_keywords_on_folder (p, is_simulation, ext, is_verbose)
 				end
 			else
 				-- Skipped
-				printer.localized_print ("Skipped entry %"")
-				printer.localized_print (p.name)
-				printer.localized_print ("%"!%N")
+				if is_verbose then
+					printer.localized_print ("Skipped entry %"")
+					printer.localized_print (p.name)
+					printer.localized_print ("%"!%N")
+				end
 			end
 		end
 
-	reset_keywords_on_folder (a_location: PATH; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL)
+	reset_keywords_on_folder (a_location: PATH; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
 		local
 			d: DIRECTORY
 			p: PATH
@@ -119,13 +125,13 @@ feature -- Execution
 					p := ic.item
 					if p.is_parent_symbol or p.is_current_symbol then
 					else
-						reset_keywords_on_entry (a_location.extended_path (p), True, is_simulation, ext)
+						reset_keywords_on_entry (a_location.extended_path (p), True, is_simulation, ext, is_verbose)
 					end
 				end
 			end
 		end
 
-	reset_keywords_on_file (p: PATH; is_simulation: BOOLEAN)
+	reset_keywords_on_file (p: PATH; is_simulation: BOOLEAN; is_verbose: BOOLEAN)
 			-- Reset values in manifest string like `"$date=....$"` to `"$date$"`.
 		local
 			f: RAW_FILE
@@ -148,7 +154,6 @@ feature -- Execution
 					l_line := f.last_string
 					i := 1
 					from
---						pos := l_line.substring_index ("%"$", i)
 					until
 						i = 0
 					loop
@@ -165,7 +170,9 @@ feature -- Execution
 						end
 					end
 					s.append (l_line)
-					s.append_character ('%N')
+					if not f.end_of_file then
+						s.append_character ('%N')
+					end
 				end
 				f.close
 				if lst.count > 0 then
@@ -189,9 +196,11 @@ feature -- Execution
 					end
 				end
 			else
-				printer.localized_print ("Skipped file %"")
-				printer.localized_print (p.name)
-				printer.localized_print ("%"!%N")
+				if is_verbose then
+					printer.localized_print ("Skipped file %"")
+					printer.localized_print (p.name)
+					printer.localized_print ("%"!%N")
+				end
 			end
 		end
 

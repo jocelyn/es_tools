@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-16-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.eiffel.com/developers/xml/configuration-1-16-0.xsd" name="file_system" uuid="A26415AA-8DDD-45C9-8F6F-C0C9AF486E6B" library_target="file_system">
+	<target name="file_system">
+		<root all_classes="true"/>
+		<option full_class_checking="true" is_attached_by_default="true" syntax="standard">
+		</option>
+		<capability>
+			<void_safety support="all"/>
+		</capability>
+		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
+		<cluster name="src" location="src\" recursive="true"/>
+	</target>
+</system>
