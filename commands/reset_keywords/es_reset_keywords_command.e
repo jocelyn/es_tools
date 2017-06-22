@@ -163,7 +163,7 @@ feature -- Execution
 						if colpos > i and endpos > colpos then
 							n := l_line.count
 							lst.force (l_line.substring (pos + 2, colpos - 1))
-							l_line.replace_substring ("%"$" + l_line.substring (pos + 2, colpos - 1) + "$%"", pos, endpos + 1)
+							l_line.replace_substring ("%"$" + l_line.substring (pos + 2, colpos - 1) + "$%"", pos.max (1), endpos + 1)
 							i := endpos + 1 - (n - l_line.count) + 1 -- substract the diff
 						else
 							i := 0
