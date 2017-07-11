@@ -32,6 +32,7 @@
 		<library name="command_uuid" location="commands\uuid\uuid.ecf" readonly="false"/>
 		<library name="command_which" location="commands\which\which.ecf" readonly="false"/>
 		<library name="command_reset_keywords" location="commands\reset_keywords\reset_keywords.ecf" readonly="false"/>
+		<library name="command_sync" location="commands\sync\sync.ecf" readonly="false"/>
 		<cluster name="src_builtin" location=".\src\builtin\"/>
 	</target>
 </system>

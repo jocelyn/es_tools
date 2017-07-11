@@ -118,9 +118,16 @@ feature -- Execution
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
 			printer.localized_print ("Synchronize two folders%N")
-			--printer.localized_print ("Usage: command [-a|--all] s%N")
-			--printer.localized_print ("%T-a or --all: to show all locations.%N")
-			--printer.localized_print ("%T-p or --parent: to show the parent location.%N")
+			printer.localized_print ("Usage: sync ... s%N")
+			printer.localized_print ("%T--source: source directory.%N")
+			printer.localized_print ("%T--target: target directory.%N")
+			printer.localized_print ("%T--extension ext: handle files with associated extension.%N")
+			printer.localized_print ("%T--exclude name-or-pattern: exclude file or directory based on name-or-pattern value.%N")
+			printer.localized_print ("%T--exclude-dir name-or-pattern: exclude directories matching name-or-pattern value.%N")
+			printer.localized_print ("%T--exclude-file name-or-pattern: exclude files matching name-or-pattern value.%N")
+			printer.localized_print ("%T--recursive: sync directory and sub directories recursively.%N")
+			printer.localized_print ("%T--simulation: do not change anything on file system.%N")
+			printer.localized_print ("%T--verbose: verbose output.%N")
 		end
 
 end
