@@ -9,7 +9,7 @@
 		</file_rule>
 		<setting name="console_application" value="true"/>
 		<capability>
-			<concurrency support="scoop"/>
+			<concurrency use="none"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="false"/>
 		<library name="es_commands" location="..\..\lib\es_commands.ecf" readonly="false"/>

@@ -15,8 +15,7 @@ IF not EXIST %BINDIR%\es.exe GOTO build_es_tool
 echo - "%ESTOOLNAME%" tool is already available at %BINDIR%\%ESTOOLNAME%
 goto build_commands
 :build_es_tool
-ecb -config %~dp0es_tools.ecf -target es_tools -finalize -c_compile -clean -project_path %COMPDIR% >> %T_LOGFILE%
-copy /Y %COMPDIR%\EIFGENs\es_tools\F_code\es.exe %BINDIR%\%ESTOOLNAME%
+eiffel build --target es_tools %~dp0es_tools.ecf %BINDIR%\%ESTOOLNAME% >> %T_LOGFILE%
 echo - "%ESTOOLNAME%" tool copied under %BINDIR%\%ESTOOLNAME%
 goto build_commands
 
@@ -36,8 +35,7 @@ goto end
 
 :build_command_f
 	echo - command "%T_CMD_NAME%.exe": building ...
-	ecb -config %~dp0commands\%T_CMD_NAME%\%T_CMD_NAME%.ecf -target %T_CMD_NAME% -finalize -c_compile -clean -project_path %COMPDIR%  >> %T_LOGFILE%
-	copy /Y %COMPDIR%\EIFGENs\%T_CMD_NAME%\F_code\%T_CMD_NAME%.exe %CMDBINDIR%\%T_CMD_NAME%.exe
+	eiffel build --target %T_CMD_NAME% %~dp0commands\%T_CMD_NAME%\%T_CMD_NAME%.ecf %CMDBINDIR%\%T_CMD_NAME%.exe >> %T_LOGFILE%
 	echo - command "%T_CMD_NAME%.exe": copied to %CMDBINDIR%\%T_CMD_NAME%.exe .
 	goto build_next_command
 

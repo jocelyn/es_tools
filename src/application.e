@@ -187,7 +187,7 @@ feature {NONE} -- Implementation
 
 	command_name (a_path: PATH): STRING_32
 		local
-			u: ENVIRONMENT_PATH_UTILITIES
+--			u: ENVIRONMENT_PATH_UTILITIES
 			p: PATH
 		do
 			if attached a_path.entry as e then

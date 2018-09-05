@@ -7,12 +7,11 @@
 			<exclude>/.svn$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
-		<option warning="true" is_obsolete_routine_type="true">
+		<option warning="true">
 		</option>
 		<setting name="console_application" value="true"/>
 		<capability>
-			<concurrency support="none" use="none"/>
-			
+			<concurrency use="none"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="false"/>
 		<library name="es_commands" location="..\..\lib\es_commands.ecf" readonly="false"/>
