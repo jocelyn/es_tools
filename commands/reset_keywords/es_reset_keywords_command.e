@@ -23,6 +23,30 @@ feature -- Access
 			Result := "Reset keywords from file(s)"
 		end
 
+feature -- Helper
+
+	is_valid_keyword (k: READABLE_STRING_8): BOOLEAN
+		local
+			i,n: INTEGER
+			c: CHARACTER_8
+		do
+			Result := True
+			from
+				i := 1
+				n := k.count
+			until
+				i > n or not Result
+			loop
+				c := k [i]
+				if c.is_alpha_numeric or c = '-' or c = '_' then
+						-- Alphanumeric, , - or _ (to be flexible)
+				else
+					Result := False
+				end
+				i := i + 1
+			end
+		end
+
 feature -- Execution
 
 	execute_command (ctx: ES_COMMAND_CONTEXT)
@@ -33,7 +57,8 @@ feature -- Execution
 			l_targets: ARRAYED_LIST [READABLE_STRING_32]
 			args: LIST [READABLE_STRING_32]
 			ut: FILE_UTILITIES
-			l_extension, l_arg: READABLE_STRING_32
+			l_arg: READABLE_STRING_32
+			l_extensions, l_keywords: detachable ARRAYED_LIST [READABLE_STRING_32]
 			l_verbose, l_simulation: BOOLEAN
 		do
 			create u
@@ -57,7 +82,20 @@ feature -- Execution
 						if args.after then
 							printer.localized_print_error ({STRING_32} "Warning: missing value for %"-e|--extension" + {STRING_32} "%" option.")
 						else
-							l_extension := args.item
+							if l_extensions = Void then
+								create l_extensions.make (1)
+							end
+							l_extensions.force (args.item)
+						end
+					elseif l_arg.is_case_insensitive_equal ("-k") or l_arg.is_case_insensitive_equal ("--keyword") then
+						args.forth
+						if args.after then
+							printer.localized_print_error ({STRING_32} "Warning: missing value for %"-k|--keyword" + {STRING_32} "%" option.")
+						else
+							if l_keywords = Void then
+								create l_keywords.make (1)
+							end
+							l_keywords.force (args.item)
 						end
 					else
 						printer.localized_print_error ({STRING_32} "Warning: %""+ l_arg + {STRING_32} "%" ignored.")
@@ -68,38 +106,49 @@ feature -- Execution
 				args.forth
 			end
 
+			if l_extensions /= Void and then l_extensions.is_empty then
+				l_extensions := Void
+			end
+			if l_keywords /= Void and then l_keywords.is_empty then
+				l_keywords := Void
+			end
 			across
 				l_targets as c
 			loop
 				create p.make_from_string (c.item)
-				reset_keywords_on_entry (p, l_recursive, l_simulation, l_extension, l_verbose)
+				reset_keywords_on_entry (p, l_recursive, l_simulation, l_extensions, l_keywords, l_verbose)
 			end
 		end
 
-	reset_keywords_on_entry (p: PATH; is_recursive: BOOLEAN; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
+	reset_keywords_on_entry (p: PATH; is_recursive: BOOLEAN; is_simulation: BOOLEAN; a_extensions, a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_verbose: BOOLEAN)
 		local
 			ut: FILE_UTILITIES
 		do
 			if ut.file_path_exists (p) then
-				if ext /= Void then
-					if attached p.extension as e and then ext.same_string (e) then
-						reset_keywords_on_file (p, is_simulation, is_verbose)
+				if a_extensions /= Void then
+					if attached p.extension as e and then across a_extensions as ic some ic.item.same_string (e) end then
+						reset_keywords_on_file (p, a_keywords, is_simulation, is_verbose)
 					else
 						-- Skipped
 						if is_verbose then
 							printer.localized_print ("Skipped entry %"")
 							printer.localized_print (p.name)
-							printer.localized_print ("%": not expected extension ")
-							printer.localized_print (ext)
-							printer.localized_print ("!%N")
+							printer.localized_print ("%": not expected extension (")
+							across
+								a_extensions as ic
+							loop
+								printer.localized_print (" ")
+								printer.localized_print (ic.item)
+							end
+							printer.localized_print (" )!%N")
 						end
 					end
 				else
-					reset_keywords_on_file (p, is_simulation, is_verbose)
+					reset_keywords_on_file (p,  a_keywords, is_simulation, is_verbose)
 				end
 			elseif ut.directory_path_exists (p) then
 				if is_recursive then
-					reset_keywords_on_folder (p, is_simulation, ext, is_verbose)
+					reset_keywords_on_folder (p, is_simulation, a_extensions, a_keywords, is_verbose)
 				end
 			else
 				-- Skipped
@@ -111,7 +160,7 @@ feature -- Execution
 			end
 		end
 
-	reset_keywords_on_folder (a_location: PATH; is_simulation: BOOLEAN; ext: detachable READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
+	reset_keywords_on_folder (a_location: PATH; is_simulation: BOOLEAN; a_extensions, a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_verbose: BOOLEAN)
 		local
 			d: DIRECTORY
 			p: PATH
@@ -125,13 +174,13 @@ feature -- Execution
 					p := ic.item
 					if p.is_parent_symbol or p.is_current_symbol then
 					else
-						reset_keywords_on_entry (a_location.extended_path (p), True, is_simulation, ext, is_verbose)
+						reset_keywords_on_entry (a_location.extended_path (p), True, is_simulation, a_extensions, a_keywords, is_verbose)
 					end
 				end
 			end
 		end
 
-	reset_keywords_on_file (p: PATH; is_simulation: BOOLEAN; is_verbose: BOOLEAN)
+	reset_keywords_on_file (p: PATH; a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_simulation: BOOLEAN; is_verbose: BOOLEAN)
 			-- Reset values in manifest string like `"$date=....$"` to `"$date$"`.
 		local
 			f: RAW_FILE
@@ -140,6 +189,7 @@ feature -- Execution
 			i,pos,colpos,endpos: INTEGER
 			n : INTEGER
 			lst: ARRAYED_LIST [READABLE_STRING_8]
+			l_keyword: READABLE_STRING_8
 		do
 			create f.make_with_path (p)
 			if f.exists and then f.is_access_readable and then f.is_access_writable then
@@ -162,9 +212,17 @@ feature -- Execution
 						endpos := l_line.substring_index ("$%"", pos + 2)
 						if colpos > i and endpos > colpos then
 							n := l_line.count
-							lst.force (l_line.substring (pos + 2, colpos - 1))
-							l_line.replace_substring ("%"$" + l_line.substring (pos + 2, colpos - 1) + "$%"", pos.max (1), endpos + 1)
-							i := endpos + 1 - (n - l_line.count) + 1 -- substract the diff
+							l_keyword := l_line.substring (pos + 2, colpos - 1)
+							if is_valid_keyword (l_keyword) then
+								if a_keywords /= Void and then not across a_keywords as ic some ic.item.same_string (l_keyword) end then
+										-- Not expected keyword... skip
+									i := colpos
+								else
+									lst.force (l_keyword)
+									l_line.replace_substring ("%"$" + l_keyword + "$%"", pos.max (1), endpos + 1)
+									i := endpos + 1 - (n - l_line.count) + 1 -- substract the diff
+								end
+							end
 						else
 							i := 0
 						end
@@ -206,7 +264,13 @@ feature -- Execution
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Reset keywords from file(s)")
+			printer.localized_print ("Reset keywords from file(s)%N")
+			printer.localized_print ("Usage: prog  ...%N")
+			printer.localized_print ("  -e|--extension  : process only file with such extension (multiple accepted)%N")
+			printer.localized_print ("  -k|--keyword    : process only keyword with such name (multiple accepted)%N")
+			printer.localized_print ("  -r|--recursive  : process subfolder recursively%N")
+			printer.localized_print ("  -s|--simulation : simulating without any change on file%N")
+			printer.localized_print ("  -v|--verbose    : display verbose output%N")
 		end
 
 end
