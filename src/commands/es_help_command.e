@@ -46,12 +46,16 @@ feature -- Execution
 			args: ARGUMENTS_32
 		do
 			if a_context.logo_enabled then
+				if a_context.is_verbose then
+					io.put_new_line
+				end
 				io.put_string ("-- ")
-				printer.localized_print (manager.logo)
+				localized_print (manager.logo)
 				io.put_new_line
 				if a_context.is_verbose then
 					create args
-					printer.localized_print (args.argument (0))
+					localized_print ("%N  [info] Executable: ")
+					localized_print (args.argument (0))
 					io.put_new_line
 				end
 				io.put_new_line
@@ -75,13 +79,14 @@ feature -- Execution
 				io.put_new_line
 				cmd.execute (ctx)
 			else
-				execute_help
+				execute_help (ctx)
 			end
 		end
 
-	execute_help
+	execute_help (ctx: ES_COMMAND_CONTEXT)
 		local
 			n: INTEGER
+			l_opts: ARRAYED_LIST [TUPLE [name: READABLE_STRING_GENERAL; description: detachable READABLE_STRING_GENERAL]]
 		do
 			n := 0
 
@@ -91,6 +96,33 @@ feature -- Execution
 				if c.item.is_available then
 					n := n.max (c.key.count)
 				end
+			end
+
+			if ctx.is_verbose then
+				n := n.max (19)
+				create l_opts.make (6)
+				l_opts.force (["-v --verbose", "verbose output"])
+				l_opts.force (["   --config <filename>", "use given <filename> as main configuration file"])
+				l_opts.force (["-p --portable", "ignore home folders, look into local .es-rc folder"])
+				l_opts.force (["-s --shell", "interactive execution, prompt menu to select command"])
+				l_opts.force (["   --logo", "display core application name"])
+				l_opts.force (["   --no-logo", "DO NOT display core application name"])
+				across
+					l_opts as c
+				loop
+					n := n.max (c.item.name.count)
+				end
+			
+				print ("Options:%N")
+				print ("--------%N")
+				across
+					l_opts as c
+				loop
+					display_option_help (string_adapted_to_width (c.item.name, n), c.item.description)
+				end
+				io.put_new_line
+				print ("Commands:%N")
+				print ("---------%N")
 			end
 
 				-- Display commands
@@ -122,13 +154,25 @@ feature -- Execution
 			end
 		end
 
+
+	display_option_help (a_opt_name: READABLE_STRING_GENERAL; a_opt_description: detachable READABLE_STRING_GENERAL)
+		do
+			io.put_string ("  ")
+			localized_print (a_opt_name)
+			if a_opt_description /= Void then
+				io.put_string (" : ")
+				localized_print (a_opt_description)
+			end
+			io.put_new_line
+		end
+
 	display_short_help (cmd: ES_COMMAND; a_name: READABLE_STRING_GENERAL)
 		do
-			io.put_string (" ")
-			printer.localized_print (a_name)
+			io.put_string ("  ")
+			localized_print (a_name)
 			if attached cmd.description as d then
 				io.put_string (" : ")
-				printer.localized_print (d)
+				localized_print (d)
 			end
 			if attached {ES_GROUP_COMMAND} cmd as grp then
 				if cmd.description = Void then

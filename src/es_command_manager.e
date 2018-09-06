@@ -48,6 +48,15 @@ feature -- Callback
 			end
 		end
 
+	on_command_registered (cmd: ES_COMMAND; a_name: READABLE_STRING_GENERAL)
+		do
+			across
+				observers as ic
+			loop
+				ic.item.on_command_registered (cmd, a_name)
+			end
+		end
+
 	observers: ARRAYED_LIST [ES_COMMAND_MANAGER_OBSERVER]
 
 feature -- Change
@@ -58,6 +67,7 @@ feature -- Change
 			n,s: STRING_32
 			p: INTEGER
 		do
+			on_command_registered (cmd, a_name)
 			n := a_name.to_string_32
 			p := n.index_of ({ES_TOOL_CONSTANTS}.group_separator, 1)
 			if p > 0 then
@@ -239,6 +249,10 @@ feature -- Change
 								if f.exists and then f.is_access_readable then
 									create fn.make_from_string (s.substring (1, s.count - 1 - {ES_TOOL_CONSTANTS}.es_info_extension.count))
 									f.reset_path (fn)
+									if not f.exists and {PLATFORM}.is_windows then
+										fn := fn.appended_with_extension ("exe")
+										f.reset_path (fn)
+									end
 									if f.exists then
 										f.reset_path (p)
 										f.open_read

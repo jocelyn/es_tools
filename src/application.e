@@ -152,6 +152,7 @@ feature -- Event
 		do
 			if is_verbose and is_empty_call then
 				create f.make_with_path (p)
+				print ("[info] ")
 				if f.exists then
 					if f.is_access_readable then
 						if f.is_directory then
@@ -168,6 +169,21 @@ feature -- Event
 				print (" %"")
 				print (p.name)
 				print ("%"")
+				print ("%N")
+			end
+		end
+
+	on_command_registered (cmd: ES_COMMAND; a_name: READABLE_STRING_GENERAL)
+		do
+			if is_verbose and is_empty_call then
+				print ("[info] command %"")
+				print (a_name)
+				print ("%"")
+				if attached {ES_EXECUTABLE_COMMAND} cmd as l_exe_cmd then
+					print (" (")
+					print (l_exe_cmd.executable.name)
+					print (")")
+				end
 				print ("%N")
 			end
 		end

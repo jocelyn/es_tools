@@ -9,8 +9,6 @@ class
 inherit
 	ES_COMMAND
 
-	LOCALIZED_PRINTER
-
 	SHARED_EXECUTION_ENVIRONMENT
 
 create
@@ -63,7 +61,7 @@ feature -- Execution
 		do
 			if a_context.logo_enabled then
 				io.put_string ("-- ")
-				printer.localized_print (manager.logo)
+				localized_print (manager.logo)
 				io.put_new_line
 				io.put_new_line
 				ctx := a_context.without_logo

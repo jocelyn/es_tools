@@ -1,0 +1,9 @@
+[uuid]
+path=.\uuid.exe
+arguments=--lower
+description=generate lowercase UUID
+
+[UUID]
+path=.\uuid.exe
+arguments=--upper
+description=generate uppercase UUID

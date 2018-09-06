@@ -44,9 +44,23 @@ feature -- Execution
 
 feature -- Helper
 
-	printer: LOCALIZED_PRINTER
+	localized_printer: LOCALIZED_PRINTER
 		once
 			create Result
+		end
+
+	localized_print (s: detachable READABLE_STRING_GENERAL)
+			-- Print `a_str` as localized encoding.
+			-- `a_str` is taken as a UTF-32 string.
+		do
+			localized_printer.localized_print (s)
+		end
+
+	localized_print_error (s: detachable READABLE_STRING_GENERAL)
+			-- Print an error, `a_str`, as localized encoding.
+			-- `a_str` is taken as a UTF-32 string.
+		do
+			localized_printer.localized_print_error (s)
 		end
 
 end

@@ -13,4 +13,8 @@ feature -- Event
 		deferred
 		end
 
+	on_command_registered (cmd: ES_COMMAND; a_name: READABLE_STRING_GENERAL)
+		deferred
+		end
+
 end

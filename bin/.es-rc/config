@@ -1,0 +1,15 @@
+
+[svn]
+path=C:\apps\dev\TortoiseSVN\bin\svn.exe
+description=subversion client
+status=disabled
+
+[git]
+path=c:\apps\dev\Git\cmd\git.exe
+description=GIT client
+status=disabled
+
+[*]
+path=..\tools
+
+@include=ise.ini

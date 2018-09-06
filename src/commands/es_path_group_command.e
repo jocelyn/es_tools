@@ -9,8 +9,6 @@ class
 inherit
 	ES_COMMAND
 
-	LOCALIZED_PRINTER
-
 	SHARED_EXECUTION_ENVIRONMENT
 
 create
@@ -62,10 +60,10 @@ feature -- Execution
 			manager.import_all_from (path)
 
 			if manager.is_empty then
-				printer.localized_print (path.name)
+				localized_print (path.name)
 				io.put_new_line
 				if ctx.is_verbose then
-					printer.localized_print ({STRING_32} "Executing " + path.name + "%N")
+					localized_print ({STRING_32} "Executing " + path.name + "%N")
 				end
 			else
 				if ctx.is_shell then

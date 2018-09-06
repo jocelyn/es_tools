@@ -21,6 +21,8 @@ feature {NONE} -- Initialization
 			executable := a_executable_name
 		end
 
+feature -- Access		
+
 	executable: PATH
 
 feature -- Status report
@@ -99,7 +101,7 @@ feature -- Execution
 				s.append_string_general (c.item)
 			end
 			if ctx.is_verbose then
-				printer.localized_print ({STRING_32} "Executing " + s + "%N")
+				localized_print ({STRING_32} "Executing " + s + "%N")
 			end
 
 --			create o.make (255)
