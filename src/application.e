@@ -51,13 +51,13 @@ feature {NONE} -- Initialization
 						is_verbose := True
 					elseif n.same_string ("-s") or n.same_string ("--shell") then
 						is_shell := True
-					elseif n.same_string ("--portable") then
+					elseif n.same_string ("-p") or n.same_string ("--portable") then
 						is_portable := True
 					elseif n.same_string ("--no-logo") then
 						logo_enabled := False
 					elseif n.same_string ("--logo") then
 						logo_enabled := True
-					elseif n.same_string ("--config") then
+					elseif n.same_string ("-f") or n.same_string ("--config") then
 						i := i + 1
 						if arr.valid_index (i) then
 							create l_config_path.make_from_string (arr[i])

@@ -1,0 +1,2 @@
+name=which
+description=location of executable(s) [-a|--all] [-p|--parent].

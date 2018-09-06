@@ -93,7 +93,7 @@ feature -- Execution
 			across
 				manager as c
 			loop
-				if c.item.is_available then
+				if ctx.is_verbose or c.item.is_available then
 					n := n.max (c.key.count)
 				end
 			end
@@ -102,7 +102,7 @@ feature -- Execution
 				n := n.max (19)
 				create l_opts.make (6)
 				l_opts.force (["-v --verbose", "verbose output"])
-				l_opts.force (["   --config <filename>", "use given <filename> as main configuration file"])
+				l_opts.force (["-f --config <filename>", "use given <filename> as main configuration file"])
 				l_opts.force (["-p --portable", "ignore home folders, look into local .es-rc folder"])
 				l_opts.force (["-s --shell", "interactive execution, prompt menu to select command"])
 				l_opts.force (["   --logo", "display core application name"])
@@ -112,7 +112,7 @@ feature -- Execution
 				loop
 					n := n.max (c.item.name.count)
 				end
-			
+
 				print ("Options:%N")
 				print ("--------%N")
 				across
@@ -129,14 +129,24 @@ feature -- Execution
 			across
 				manager as c
 			loop
-				if
-					c.item.is_available
-				then
+				if c.item.is_available then
 					if attached {ES_GROUP_COMMAND} c.item as grp then
---						io.put_string ("+ ")
 						display_short_help (grp, string_adapted_to_width (c.key, n))
-
 					else
+						display_short_help (c.item, string_adapted_to_width (c.key, n))
+					end
+				end
+			end
+				-- Display unavailable commands
+			if ctx.is_verbose then
+				io.put_new_line
+				print ("Unavailable commands:%N")
+				print ("---------------------%N")
+
+				across
+					manager as c
+				loop
+					if not c.item.is_available then
 						display_short_help (c.item, string_adapted_to_width (c.key, n))
 					end
 				end

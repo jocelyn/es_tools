@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<execution_parameters xmlns="http://www.eiffel.com/developers/xml/execution-parameters-1-0-0" last_profile="03F1F723-7A0D-4A0D-A840-2AAF095A2EE6">
+ <profile uuid="03F1F723-7A0D-4A0D-A840-2AAF095A2EE6" title="profile #1" arguments="--portable -v --config .es-rc/config" working_directory="bin">
+ </profile>
+</execution_parameters>
