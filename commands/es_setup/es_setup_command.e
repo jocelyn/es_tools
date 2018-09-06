@@ -42,10 +42,10 @@ feature -- Execution
 				layout.installed_version_names as ic
 			loop
 				if v_name.is_case_insensitive_equal_general (ic.item) then
-					printer.localized_print ("Current version:")
+					localized_print ("Current version:")
 					display_version_info (layout, ic.item.as_string_32)
 				else
-					printer.localized_print ("<Previous>")
+					localized_print ("<Previous>")
 					display_version_info (layout, ic.item.as_string_32)
 				end
 			end
@@ -60,16 +60,16 @@ feature -- Execution
 
 	display_version_info (a_layout: ES_EIFFEL_LAYOUT; a_version_name: READABLE_STRING_GENERAL)
 		do
-			printer.localized_print ({STRING_32} "[" + a_version_name + "] ")
+			localized_print ({STRING_32} "[" + a_version_name + "] ")
 			print ("%N")
 			if attached a_layout.eiffel_preferences_for_version (a_version_name, False) as l_pref_loc then
 				print ("  - Prefs: ")
-				printer.localized_print (l_pref_loc)
+				localized_print (l_pref_loc)
 				print ("%N")
 			end
 			if attached a_layout.user_files_path_for_version (a_version_name, False) as l_user_files_loc then
 				print ("  - Files: ")
-				printer.localized_print (l_user_files_loc.name)
+				localized_print (l_user_files_loc.name)
 				print ("%N")
 			end
 		end
@@ -77,17 +77,17 @@ feature -- Execution
 	display_environ_variable  (n: READABLE_STRING_GENERAL)
 		do
 			if attached execution_environment.item (n) as v then
-				printer.localized_print (" - ")
-				printer.localized_print (n)
-				printer.localized_print ("=")
-				printer.localized_print (v)
+				localized_print (" - ")
+				localized_print (n)
+				localized_print ("=")
+				localized_print (v)
 				io.put_new_line
 			end
 		end
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Help:  ...")
+			localized_print ("Help:  ...")
 			io.put_new_line
 		end
 

@@ -91,9 +91,9 @@ feature -- Execution
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
 			if is_uppercase then
-				printer.localized_print ("Print a new UUID in uppercase")
+				localized_print ("Print a new UUID in uppercase")
 			else
-				printer.localized_print ("Print a new UUID in lowercase")
+				localized_print ("Print a new UUID in lowercase")
 			end
 		end
 

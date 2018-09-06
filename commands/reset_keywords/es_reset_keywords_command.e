@@ -80,7 +80,7 @@ feature -- Execution
 					elseif l_arg.is_case_insensitive_equal ("-e") or l_arg.is_case_insensitive_equal ("--extension") then
 						args.forth
 						if args.after then
-							printer.localized_print_error ({STRING_32} "Warning: missing value for %"-e|--extension" + {STRING_32} "%" option.")
+							localized_print_error ({STRING_32} "Warning: missing value for %"-e|--extension" + {STRING_32} "%" option.")
 						else
 							if l_extensions = Void then
 								create l_extensions.make (1)
@@ -90,7 +90,7 @@ feature -- Execution
 					elseif l_arg.is_case_insensitive_equal ("-k") or l_arg.is_case_insensitive_equal ("--keyword") then
 						args.forth
 						if args.after then
-							printer.localized_print_error ({STRING_32} "Warning: missing value for %"-k|--keyword" + {STRING_32} "%" option.")
+							localized_print_error ({STRING_32} "Warning: missing value for %"-k|--keyword" + {STRING_32} "%" option.")
 						else
 							if l_keywords = Void then
 								create l_keywords.make (1)
@@ -98,7 +98,7 @@ feature -- Execution
 							l_keywords.force (args.item)
 						end
 					else
-						printer.localized_print_error ({STRING_32} "Warning: %""+ l_arg + {STRING_32} "%" ignored.")
+						localized_print_error ({STRING_32} "Warning: %""+ l_arg + {STRING_32} "%" ignored.")
 					end
 				else
 					l_targets.force (l_arg)
@@ -131,16 +131,16 @@ feature -- Execution
 					else
 						-- Skipped
 						if is_verbose then
-							printer.localized_print ("Skipped entry %"")
-							printer.localized_print (p.name)
-							printer.localized_print ("%": not expected extension (")
+							localized_print ("Skipped entry %"")
+							localized_print (p.name)
+							localized_print ("%": not expected extension (")
 							across
 								a_extensions as ic
 							loop
-								printer.localized_print (" ")
-								printer.localized_print (ic.item)
+								localized_print (" ")
+								localized_print (ic.item)
 							end
-							printer.localized_print (" )!%N")
+							localized_print (" )!%N")
 						end
 					end
 				else
@@ -153,9 +153,9 @@ feature -- Execution
 			else
 				-- Skipped
 				if is_verbose then
-					printer.localized_print ("Skipped entry %"")
-					printer.localized_print (p.name)
-					printer.localized_print ("%"!%N")
+					localized_print ("Skipped entry %"")
+					localized_print (p.name)
+					localized_print ("%"!%N")
 				end
 			end
 		end
@@ -234,43 +234,43 @@ feature -- Execution
 				end
 				f.close
 				if lst.count > 0 then
-					printer.localized_print ("Keywords: [ ")
+					localized_print ("Keywords: [ ")
 					across
 						lst as ic
 					loop
-						printer.localized_print (ic.item)
-						printer.localized_print (" ")
+						localized_print (ic.item)
+						localized_print (" ")
 					end
-					printer.localized_print ("] in file %"")
-					printer.localized_print (p.name)
-					printer.localized_print ("%"")
+					localized_print ("] in file %"")
+					localized_print (p.name)
+					localized_print ("%"")
 					if is_simulation then
-						printer.localized_print (" SIMULATED.%N")
+						localized_print (" SIMULATED.%N")
 					else
 						f.open_write
 						f.put_string (s)
 						f.close
-						printer.localized_print (" SAVED.%N")
+						localized_print (" SAVED.%N")
 					end
 				end
 			else
 				if is_verbose then
-					printer.localized_print ("Skipped file %"")
-					printer.localized_print (p.name)
-					printer.localized_print ("%"!%N")
+					localized_print ("Skipped file %"")
+					localized_print (p.name)
+					localized_print ("%"!%N")
 				end
 			end
 		end
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Reset keywords from file(s)%N")
-			printer.localized_print ("Usage: prog  ...%N")
-			printer.localized_print ("  -e|--extension  : process only file with such extension (multiple accepted)%N")
-			printer.localized_print ("  -k|--keyword    : process only keyword with such name (multiple accepted)%N")
-			printer.localized_print ("  -r|--recursive  : process subfolder recursively%N")
-			printer.localized_print ("  -s|--simulation : simulating without any change on file%N")
-			printer.localized_print ("  -v|--verbose    : display verbose output%N")
+			localized_print ("Reset keywords from file(s)%N")
+			localized_print ("Usage: prog  ...%N")
+			localized_print ("  -e|--extension  : process only file with such extension (multiple accepted)%N")
+			localized_print ("  -k|--keyword    : process only keyword with such name (multiple accepted)%N")
+			localized_print ("  -r|--recursive  : process subfolder recursively%N")
+			localized_print ("  -s|--simulation : simulating without any change on file%N")
+			localized_print ("  -v|--verbose    : display verbose output%N")
 		end
 
 end

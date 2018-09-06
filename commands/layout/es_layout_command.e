@@ -45,7 +45,7 @@ feature -- Execution
 			end
 			set_eiffel_layout (layout)
 
-			printer.localized_print ("Eiffel variables:")
+			localized_print ("Eiffel variables:")
 			io.put_new_line
 			across
 				<<
@@ -67,34 +67,34 @@ feature -- Execution
 
 			io.put_new_line
 
-			printer.localized_print ("Eiffel folders:")
+			localized_print ("Eiffel folders:")
 			io.put_new_line
-			printer.localized_print (" - Installation=")
-			printer.localized_print (layout.install_path.name)
-			io.put_new_line
-
-			printer.localized_print (" - Configuration=")
-			printer.localized_print (layout.config_path.name)
+			localized_print (" - Installation=")
+			localized_print (layout.install_path.name)
 			io.put_new_line
 
-			printer.localized_print (" - Binary=")
-			printer.localized_print (layout.bin_path.name)
+			localized_print (" - Configuration=")
+			localized_print (layout.config_path.name)
 			io.put_new_line
 
-			printer.localized_print (" - Hidden files=")
-			printer.localized_print (layout.hidden_files_path.name)
+			localized_print (" - Binary=")
+			localized_print (layout.bin_path.name)
 			io.put_new_line
 
-			printer.localized_print (" - User files=")
-			printer.localized_print (layout.user_files_path.name)
+			localized_print (" - Hidden files=")
+			localized_print (layout.hidden_files_path.name)
 			io.put_new_line
 
-			printer.localized_print (" - User projects=")
-			printer.localized_print (layout.user_projects_path.name)
+			localized_print (" - User files=")
+			localized_print (layout.user_files_path.name)
 			io.put_new_line
 
-			printer.localized_print (" - User templates=")
-			printer.localized_print (layout.user_templates_path.name)
+			localized_print (" - User projects=")
+			localized_print (layout.user_projects_path.name)
+			io.put_new_line
+
+			localized_print (" - User templates=")
+			localized_print (layout.user_templates_path.name)
 			io.put_new_line
 
 			io.put_new_line
@@ -103,22 +103,22 @@ feature -- Execution
 	display_environ_variable  (n: READABLE_STRING_GENERAL; is_verbose: BOOLEAN)
 		do
 			if attached execution_environment.item (n) as v then
-				printer.localized_print (" - ")
-				printer.localized_print (n)
-				printer.localized_print ("=")
-				printer.localized_print (v)
+				localized_print (" - ")
+				localized_print (n)
+				localized_print ("=")
+				localized_print (v)
 				io.put_new_line
 			elseif is_verbose then
-				printer.localized_print (" - ")
-				printer.localized_print (n)
-				printer.localized_print (" is not set!")
+				localized_print (" - ")
+				localized_print (n)
+				localized_print (" is not set!")
 				io.put_new_line
 			end
 		end
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Help:  ...")
+			localized_print ("Help:  ...")
 			io.put_new_line
 		end
 

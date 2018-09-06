@@ -46,7 +46,7 @@ feature -- Execution
 					elseif c.item.is_case_insensitive_equal ("-p") or c.item.is_case_insensitive_equal ("--parent") then
 						l_parent_action := True
 					else
-						printer.localized_print_error ({STRING_32} "Warning: %""+ c.item + {STRING_32} "%" ignored.")
+						localized_print_error ({STRING_32} "Warning: %""+ c.item + {STRING_32} "%" ignored.")
 					end
 				else
 					l_targets.force (c.item)
@@ -63,9 +63,9 @@ feature -- Execution
 							lst_p as pc
 						loop
 							if l_parent_action then
-								printer.localized_print (pc.item.parent.name)
+								localized_print (pc.item.parent.name)
 							else
-								printer.localized_print (pc.item.name)
+								localized_print (pc.item.name)
 							end
 							io.put_new_line
 						end
@@ -73,9 +73,9 @@ feature -- Execution
 				else
 					if attached u.absolute_executable_path (p) as w_p then
 						if l_parent_action then
-							printer.localized_print (w_p.parent.name)
+							localized_print (w_p.parent.name)
 						else
-							printer.localized_print (w_p.name)
+							localized_print (w_p.name)
 						end
 						io.put_new_line
 					end
@@ -85,10 +85,10 @@ feature -- Execution
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Return the location of executable(s)%N")
-			printer.localized_print ("Usage: command [-a|--all] programnames%N")
-			printer.localized_print ("%T-a or --all: to show all locations.%N")
-			printer.localized_print ("%T-p or --parent: to show the parent location.%N")
+			localized_print ("Return the location of executable(s)%N")
+			localized_print ("Usage: command [-a|--all] programnames%N")
+			localized_print ("%T-a or --all: to show all locations.%N")
+			localized_print ("%T-p or --parent: to show the parent location.%N")
 		end
 
 end

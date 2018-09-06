@@ -95,12 +95,12 @@ feature -- Execution
 
 	report_warning (msg: READABLE_STRING_32)
 		do
-			printer.localized_print_error (msg)
+			localized_print_error (msg)
 		end
 
 	report_error (msg: READABLE_STRING_32)
 		do
-			printer.localized_print_error (msg)
+			localized_print_error (msg)
 			(create {EXCEPTIONS}).die (-1)
 		end
 
@@ -117,17 +117,17 @@ feature -- Execution
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Synchronize two folders%N")
-			printer.localized_print ("Usage: sync ... s%N")
-			printer.localized_print ("%T--source: source directory.%N")
-			printer.localized_print ("%T--target: target directory.%N")
-			printer.localized_print ("%T--extension ext: handle files with associated extension.%N")
-			printer.localized_print ("%T--exclude name-or-pattern: exclude file or directory based on name-or-pattern value.%N")
-			printer.localized_print ("%T--exclude-dir name-or-pattern: exclude directories matching name-or-pattern value.%N")
-			printer.localized_print ("%T--exclude-file name-or-pattern: exclude files matching name-or-pattern value.%N")
-			printer.localized_print ("%T--recursive: sync directory and sub directories recursively.%N")
-			printer.localized_print ("%T--simulation: do not change anything on file system.%N")
-			printer.localized_print ("%T--verbose: verbose output.%N")
+			localized_print ("Synchronize two folders%N")
+			localized_print ("Usage: sync ... s%N")
+			localized_print ("%T--source: source directory.%N")
+			localized_print ("%T--target: target directory.%N")
+			localized_print ("%T--extension ext: handle files with associated extension.%N")
+			localized_print ("%T--exclude name-or-pattern: exclude file or directory based on name-or-pattern value.%N")
+			localized_print ("%T--exclude-dir name-or-pattern: exclude directories matching name-or-pattern value.%N")
+			localized_print ("%T--exclude-file name-or-pattern: exclude files matching name-or-pattern value.%N")
+			localized_print ("%T--recursive: sync directory and sub directories recursively.%N")
+			localized_print ("%T--simulation: do not change anything on file system.%N")
+			localized_print ("%T--verbose: verbose output.%N")
 		end
 
 end

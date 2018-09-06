@@ -79,10 +79,10 @@ feature -- Execution
 
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
-			printer.localized_print ("Run concurrent execution.%N")
-			printer.localized_print ("Usage: concurrent N M command.%N")
-			printer.localized_print ("%TN: number of concurrent processor%N")
-			printer.localized_print ("%TM: number of execution of each processor%N")
+			localized_print ("Run concurrent execution.%N")
+			localized_print ("Usage: concurrent N M command.%N")
+			localized_print ("%TN: number of concurrent processor%N")
+			localized_print ("%TM: number of execution of each processor%N")
 		end
 
 end
