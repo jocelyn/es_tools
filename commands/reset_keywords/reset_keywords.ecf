@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-16-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-16-0 http://www.eiffel.com/developers/xml/configuration-1-16-0.xsd" name="reset_keywords" uuid="764B61F6-D5FD-4D9E-A894-3CA3DF67A751" library_target="reset_keywords">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-18-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-18-0 http://www.eiffel.com/developers/xml/configuration-1-18-0.xsd" name="reset_keywords" uuid="764B61F6-D5FD-4D9E-A894-3CA3DF67A751" library_target="reset_keywords">
 	<target name="reset_keywords">
 		<root class="RESET_KEYWORDS_TOOL" feature="make"/>
 		<file_rule>
@@ -7,12 +7,16 @@
 			<exclude>/.svn$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
+		<option manifest_array_type="mismatch_warning">
+		</option>
 		<setting name="console_application" value="true"/>
 		<capability>
 			<concurrency use="none"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="false"/>
 		<library name="es_commands" location="..\..\lib\es_commands.ecf" readonly="false"/>
+		<library name="file_system" location="..\..\libs\file_system\file_system.ecf" readonly="false"/>
+		<library name="kmp_matcher" location="$ISE_LIBRARY\library\text\regexp\kmp_matcher\kmp_matcher.ecf"/>
 		<cluster name="src" location=".\" recursive="true"/>
 	</target>
 </system>

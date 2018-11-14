@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<execution_parameters xmlns="http://www.eiffel.com/developers/xml/execution-parameters-1-0-0" last_profile="1C14502F-25ED-403F-BB4F-8ECE98515951">
+ <profile uuid="1C14502F-25ED-403F-BB4F-8ECE98515951" title="profile #1" arguments="--portable reset_keywords -e e -k Revision -r -v -s . --simulation  --exclude-dir ewf* --exclude-dir library" working_directory="e:\eiffelstudio\trunk\Src\contrib">
+ </profile>
+ <profile uuid="C2ECD31A-D202-4309-A693-E38B6D1FC2C7" title="profile #2" arguments="--portable sync" working_directory="e:\temp">
+ </profile>
+</execution_parameters>

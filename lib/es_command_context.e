@@ -156,6 +156,4 @@ feature {ES_COMMAND_CONTEXT} -- Change
 			arguments.remove
 		end
 
-
-
 end

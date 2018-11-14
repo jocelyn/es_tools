@@ -41,56 +41,65 @@ feature -- Execution
 			create l_sync_ctx
 			l_sync_ctx.is_recursive := True
 
-			from
-				args.start
-			until
-				args.after
-			loop
-				v := args.item
-				if v.starts_with ("-") then
-					if v.is_case_insensitive_equal ("--source") then
-						args.forth
-						create l_source.make_from_string (args.item)
-					elseif v.is_case_insensitive_equal ("--target") then
-						args.forth
-						create l_target.make_from_string (args.item)
-					elseif v.is_case_insensitive_equal ("--extension") then
-						args.forth
-						l_sync_ctx.add_extension (args.item)
-					elseif v.is_case_insensitive_equal ("--exclude") then
-						args.forth
-						l_sync_ctx.add_path_exclusion (args.item)
-					elseif v.is_case_insensitive_equal ("--exclude-dir") then
-						args.forth
-						l_sync_ctx.add_directory_exclusion (args.item)
-					elseif v.is_case_insensitive_equal ("--exclude-file") then
-						args.forth
-						l_sync_ctx.add_file_exclusion (args.item)
-					elseif v.is_case_insensitive_equal ("--verbose") then
-						l_sync_ctx.is_verbose := True
-					elseif v.is_case_insensitive_equal ("--simulation") then
-						l_sync_ctx.is_simulation := True
+			if args.is_empty then
+				execute_help (ctx)
+			else
+				from
+					args.start
+				until
+					args.after
+				loop
+					v := args.item
+					if v.starts_with ("-") then
+						if v.is_case_insensitive_equal ("--source") then
+							args.forth
+							create l_source.make_from_string (args.item)
+						elseif v.is_case_insensitive_equal ("--target") then
+							args.forth
+							create l_target.make_from_string (args.item)
+						elseif v.is_case_insensitive_equal ("--extension") then
+							args.forth
+							l_sync_ctx.add_extension (args.item)
+						elseif v.is_case_insensitive_equal ("--exclude") then
+							args.forth
+							l_sync_ctx.add_path_exclusion (args.item)
+						elseif v.is_case_insensitive_equal ("--exclude-dir") then
+							args.forth
+							l_sync_ctx.add_directory_exclusion (args.item)
+						elseif v.is_case_insensitive_equal ("--exclude-file") then
+							args.forth
+							l_sync_ctx.add_file_exclusion (args.item)
+						elseif v.is_case_insensitive_equal ("--verbose") then
+							l_sync_ctx.is_verbose := True
+						elseif v.is_case_insensitive_equal ("--simulation") then
+							l_sync_ctx.is_simulation := True
 
-					elseif v.is_case_insensitive_equal ("--recursive") then
-						l_sync_ctx.is_recursive := True
-					elseif v.is_case_insensitive_equal ("--not-recursive") then
-						l_sync_ctx.is_recursive := False
+						elseif v.is_case_insensitive_equal ("--recursive") then
+							l_sync_ctx.is_recursive := True
+						elseif v.is_case_insensitive_equal ("--not-recursive") then
+							l_sync_ctx.is_recursive := False
+						else
+							report_error ({STRING_32} "Warning: %""+ v + {STRING_32} "%" ignored.")
+						end
 					else
 						report_error ({STRING_32} "Warning: %""+ v + {STRING_32} "%" ignored.")
 					end
-				else
-					report_error ({STRING_32} "Warning: %""+ v + {STRING_32} "%" ignored.")
+					args.forth
 				end
-				args.forth
+
+				if l_source = Void and l_target = Void then
+					execute_help (ctx)
+				else
+					if l_source = Void then
+						create l_source.make_current
+					end
+					if l_target = Void then
+						create l_target.make_current
+					end
+					synchronize (l_source, l_target, l_sync_ctx)
+				end
 			end
 
-			if l_source = Void then
-				create l_source.make_current
-			end
-			if l_target = Void then
-				create l_target.make_current
-			end
-			synchronize (l_source, l_target, l_sync_ctx)
 		end
 
 	report_warning (msg: READABLE_STRING_32)
@@ -118,7 +127,7 @@ feature -- Execution
 	execute_help (ctx: ES_COMMAND_CONTEXT)
 		do
 			localized_print ("Synchronize two folders%N")
-			localized_print ("Usage: sync ... s%N")
+			localized_print ("Usage: sync ... %N")
 			localized_print ("%T--source: source directory.%N")
 			localized_print ("%T--target: target directory.%N")
 			localized_print ("%T--extension ext: handle files with associated extension.%N")

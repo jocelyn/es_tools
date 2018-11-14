@@ -1,11 +1,11 @@
 note
-	description: "Summary description for {ES_SYNC_CONTEXT}."
+	description: "Summary description for {ES_RESET_KEYWORDS_CONTEXT}."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	ES_SYNC_CONTEXT
+	ES_RESET_KEYWORDS_CONTEXT
 
 inherit
 	ANY
@@ -36,6 +36,8 @@ feature -- Access
 	path_exclusions: detachable ARRAYED_LIST [READABLE_STRING_32]
 	directory_exclusions: detachable ARRAYED_LIST [READABLE_STRING_32]
 	file_exclusions: detachable ARRAYED_LIST [READABLE_STRING_32]
+
+	keywords: detachable ARRAYED_LIST [READABLE_STRING_GENERAL]
 
 feature -- Status reports
 
@@ -155,6 +157,18 @@ feature -- Element change
 	set_is_simulation (b: like is_simulation)
 		do
 			is_simulation := b
+		end
+
+	add_keyword (k: READABLE_STRING_32)
+		local
+			lst: like keywords
+		do
+			lst := keywords
+			if lst = Void then
+				create lst.make (1)
+				keywords := lst
+			end
+			lst.force (k)
 		end
 
 end

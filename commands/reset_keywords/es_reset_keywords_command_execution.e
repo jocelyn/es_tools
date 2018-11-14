@@ -1,10 +1,11 @@
 note
-	description: "Summary description for {ES_SYNC_COMMAND_EXECUTION}."
+	description: "Summary description for {ES_RESET_KEYWORDS_COMMAND_EXECUTION}."
+	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	ES_SYNC_COMMAND_EXECUTION
+	ES_RESET_KEYWORDS_COMMAND_EXECUTION
 
 inherit
 	FS_HELPERS
@@ -19,7 +20,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make (ctx: ES_SYNC_CONTEXT)
+	make (ctx: like context)
 		do
 			context := ctx
 			is_recursive := ctx.is_recursive
@@ -27,7 +28,7 @@ feature {NONE} -- Initialization
 			is_simulation := ctx.is_simulation
 		end
 
-	context: ES_SYNC_CONTEXT
+	context: ES_RESET_KEYWORDS_CONTEXT
 
 feature -- Status
 

@@ -60,107 +60,163 @@ feature -- Execution
 			l_arg: READABLE_STRING_32
 			l_extensions, l_keywords: detachable ARRAYED_LIST [READABLE_STRING_32]
 			l_verbose, l_simulation: BOOLEAN
+			cmd_ctx: ES_RESET_KEYWORDS_CONTEXT
 		do
-			create u
 			args := ctx.arguments
-			create l_targets.make (args.count)
-			from
-				args.start
-			until
-				args.after
-			loop
-				l_arg := args.item
-				if l_arg.starts_with ("-") then
-					if l_arg.is_case_insensitive_equal ("-r") or l_arg.is_case_insensitive_equal ("--recursive") then
-						l_recursive := True
-					elseif l_arg.is_case_insensitive_equal ("-s") or l_arg.is_case_insensitive_equal ("--simulation") then
-						l_simulation := True
-					elseif l_arg.is_case_insensitive_equal ("-v") or l_arg.is_case_insensitive_equal ("--verbose") then
-						l_verbose := True
-					elseif l_arg.is_case_insensitive_equal ("-e") or l_arg.is_case_insensitive_equal ("--extension") then
-						args.forth
-						if args.after then
-							localized_print_error ({STRING_32} "Warning: missing value for %"-e|--extension" + {STRING_32} "%" option.")
-						else
-							if l_extensions = Void then
-								create l_extensions.make (1)
+			if args.is_empty then
+				execute_help (ctx)
+			else
+				create u
+				create l_targets.make (args.count)
+
+				create cmd_ctx
+--				cmd_ctx.is_recursive := True
+
+				from
+					args.start
+				until
+					args.after
+				loop
+					l_arg := args.item
+					if l_arg.starts_with ("-") then
+						if l_arg.is_case_insensitive_equal ("-r") or l_arg.is_case_insensitive_equal ("--recursive") then
+							cmd_ctx.is_recursive := True
+						elseif l_arg.is_case_insensitive_equal ("--not-recursive") then
+							cmd_ctx.is_recursive := False
+						elseif l_arg.is_case_insensitive_equal ("-s") or l_arg.is_case_insensitive_equal ("--simulation") then
+							cmd_ctx.is_simulation := True
+						elseif l_arg.is_case_insensitive_equal ("-v") or l_arg.is_case_insensitive_equal ("--verbose") then
+							cmd_ctx.is_verbose := True
+						elseif l_arg.is_case_insensitive_equal ("-e") or l_arg.is_case_insensitive_equal ("--extension") then
+							args.forth
+							if args.after then
+								localized_print_error ({STRING_32} "Warning: missing value for %"-e|--extension" + {STRING_32} "%" option.")
+							else
+								cmd_ctx.add_extension (args.item)
 							end
-							l_extensions.force (args.item)
-						end
-					elseif l_arg.is_case_insensitive_equal ("-k") or l_arg.is_case_insensitive_equal ("--keyword") then
-						args.forth
-						if args.after then
-							localized_print_error ({STRING_32} "Warning: missing value for %"-k|--keyword" + {STRING_32} "%" option.")
-						else
-							if l_keywords = Void then
-								create l_keywords.make (1)
+						elseif l_arg.is_case_insensitive_equal ("--exclude") then
+							args.forth
+							if args.after then
+								localized_print_error ({STRING_32} "Warning: missing value for %"--exclude" + {STRING_32} "%" option.")
+							else
+								cmd_ctx.add_path_exclusion (args.item)
 							end
-							l_keywords.force (args.item)
+						elseif l_arg.is_case_insensitive_equal ("--exclude-dir") then
+							args.forth
+							if args.after then
+								localized_print_error ({STRING_32} "Warning: missing value for %"--exclude-dir" + {STRING_32} "%" option.")
+							else
+								cmd_ctx.add_directory_exclusion (args.item)
+							end
+						elseif l_arg.is_case_insensitive_equal ("--exclude-file") then
+							args.forth
+							if args.after then
+								localized_print_error ({STRING_32} "Warning: missing value for %"--exclude-file" + {STRING_32} "%" option.")
+							else
+								cmd_ctx.add_file_exclusion (args.item)
+							end
+						elseif l_arg.is_case_insensitive_equal ("-k") or l_arg.is_case_insensitive_equal ("--keyword") then
+							args.forth
+							if args.after then
+								localized_print_error ({STRING_32} "Warning: missing value for %"-k|--keyword" + {STRING_32} "%" option.")
+							else
+								cmd_ctx.add_keyword (args.item)
+							end
+						else
+							localized_print_error ({STRING_32} "Warning: %""+ l_arg + {STRING_32} "%" ignored.")
 						end
 					else
-						localized_print_error ({STRING_32} "Warning: %""+ l_arg + {STRING_32} "%" ignored.")
+						l_targets.force (l_arg)
 					end
-				else
-					l_targets.force (l_arg)
+					args.forth
 				end
-				args.forth
-			end
-
-			if l_extensions /= Void and then l_extensions.is_empty then
-				l_extensions := Void
-			end
-			if l_keywords /= Void and then l_keywords.is_empty then
-				l_keywords := Void
-			end
-			across
-				l_targets as c
-			loop
-				create p.make_from_string (c.item)
-				reset_keywords_on_entry (p, l_recursive, l_simulation, l_extensions, l_keywords, l_verbose)
+				across
+					l_targets as c
+				loop
+					create p.make_from_string (c.item)
+					reset_keywords_on_entry (p, False, cmd_ctx)
+				end
 			end
 		end
 
-	reset_keywords_on_entry (p: PATH; is_recursive: BOOLEAN; is_simulation: BOOLEAN; a_extensions, a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_verbose: BOOLEAN)
+	reset_keywords_on_entry (p: PATH; a_force_recursive: BOOLEAN; ctx: ES_RESET_KEYWORDS_CONTEXT)
 		local
 			ut: FILE_UTILITIES
+			exec: ES_RESET_KEYWORDS_COMMAND_EXECUTION
 		do
 			if ut.file_path_exists (p) then
-				if a_extensions /= Void then
-					if attached p.extension as e and then across a_extensions as ic some ic.item.same_string (e) end then
-						reset_keywords_on_file (p, a_keywords, is_simulation, is_verbose)
-					else
+				if attached p.entry as l_entry then
+					create exec.make (ctx)
+					if exec.file_excluded (l_entry, p.parent) then
 						-- Skipped
-						if is_verbose then
+						if ctx.is_verbose then
 							localized_print ("Skipped entry %"")
 							localized_print (p.name)
-							localized_print ("%": not expected extension (")
-							across
-								a_extensions as ic
-							loop
-								localized_print (" ")
-								localized_print (ic.item)
-							end
-							localized_print (" )!%N")
+							localized_print ("%"!%N")
 						end
+					else
+						reset_keywords_on_file (p, ctx)
 					end
 				else
-					reset_keywords_on_file (p,  a_keywords, is_simulation, is_verbose)
+					check False end
 				end
 			elseif ut.directory_path_exists (p) then
-				if is_recursive then
-					reset_keywords_on_folder (p, is_simulation, a_extensions, a_keywords, is_verbose)
+				create exec.make (ctx)
+				if ctx.is_verbose then
+					exec.process (p, agent reset_keywords_on_file (?, ctx), agent (i_p: PATH)
+							do
+								localized_print ("Skipped entry %"")
+								localized_print (i_p.name)
+								localized_print ("%"!%N")
+							end)
+				else
+					exec.process (p, agent reset_keywords_on_file (?, ctx), Void)
 				end
 			else
 				-- Skipped
-				if is_verbose then
+				if ctx.is_verbose then
 					localized_print ("Skipped entry %"")
 					localized_print (p.name)
 					localized_print ("%"!%N")
 				end
 			end
+--			if ut.file_path_exists (p) then
+--				if attached ctx.included_extensions as l_extensions then
+--					if attached p.extension as e and then across l_extensions as ic some ic.item.same_string (e) end then
+--						reset_keywords_on_file (p, ctx)
+--					else
+--						-- Skipped
+--						if ctx.is_verbose then
+--							localized_print ("Skipped entry %"")
+--							localized_print (p.name)
+--							localized_print ("%": not expected extension (")
+--							across
+--								l_extensions as ic
+--							loop
+--								localized_print (" ")
+--								localized_print (ic.item)
+--							end
+--							localized_print (" )!%N")
+--						end
+--					end
+--				else
+--					reset_keywords_on_file (p,  ctx)
+--				end
+--			elseif ut.directory_path_exists (p) then
+--				if a_force_recursive or ctx.is_recursive then
+--					reset_keywords_on_folder (p, ctx)
+--				end
+--			else
+--				-- Skipped
+--				if ctx.is_verbose then
+--					localized_print ("Skipped entry %"")
+--					localized_print (p.name)
+--					localized_print ("%"!%N")
+--				end
+--			end
 		end
 
-	reset_keywords_on_folder (a_location: PATH; is_simulation: BOOLEAN; a_extensions, a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_verbose: BOOLEAN)
+	reset_keywords_on_folder (a_location: PATH; ctx: ES_RESET_KEYWORDS_CONTEXT)
 		local
 			d: DIRECTORY
 			p: PATH
@@ -174,13 +230,13 @@ feature -- Execution
 					p := ic.item
 					if p.is_parent_symbol or p.is_current_symbol then
 					else
-						reset_keywords_on_entry (a_location.extended_path (p), True, is_simulation, a_extensions, a_keywords, is_verbose)
+						reset_keywords_on_entry (a_location.extended_path (p), True, ctx)
 					end
 				end
 			end
 		end
 
-	reset_keywords_on_file (p: PATH; a_keywords: detachable ITERABLE [READABLE_STRING_GENERAL]; is_simulation: BOOLEAN; is_verbose: BOOLEAN)
+	reset_keywords_on_file (p: PATH; ctx: ES_RESET_KEYWORDS_CONTEXT)
 			-- Reset values in manifest string like `"$date=....$"` to `"$date$"`.
 		local
 			f: RAW_FILE
@@ -214,7 +270,10 @@ feature -- Execution
 							n := l_line.count
 							l_keyword := l_line.substring (pos + 2, colpos - 1)
 							if is_valid_keyword (l_keyword) then
-								if a_keywords /= Void and then not across a_keywords as ic some ic.item.same_string (l_keyword) end then
+								if
+									attached ctx.keywords as l_keywords and then
+									not across l_keywords as ic some ic.item.same_string (l_keyword) end
+								then
 										-- Not expected keyword... skip
 									i := colpos
 								else
@@ -244,7 +303,7 @@ feature -- Execution
 					localized_print ("] in file %"")
 					localized_print (p.name)
 					localized_print ("%"")
-					if is_simulation then
+					if ctx.is_simulation then
 						localized_print (" SIMULATED.%N")
 					else
 						f.open_write
@@ -254,7 +313,7 @@ feature -- Execution
 					end
 				end
 			else
-				if is_verbose then
+				if ctx.is_verbose then
 					localized_print ("Skipped file %"")
 					localized_print (p.name)
 					localized_print ("%"!%N")
@@ -266,11 +325,14 @@ feature -- Execution
 		do
 			localized_print ("Reset keywords from file(s)%N")
 			localized_print ("Usage: prog  ...%N")
-			localized_print ("  -e|--extension  : process only file with such extension (multiple accepted)%N")
-			localized_print ("  -k|--keyword    : process only keyword with such name (multiple accepted)%N")
-			localized_print ("  -r|--recursive  : process subfolder recursively%N")
-			localized_print ("  -s|--simulation : simulating without any change on file%N")
-			localized_print ("  -v|--verbose    : display verbose output%N")
+			localized_print ("  -e|--extension              : process only file with such extension (multiple accepted)%N")
+			localized_print ("  -k|--keyword                : process only keyword with such name (multiple accepted)%N")
+			localized_print ("  -r|--recursive              : process subfolder recursively%N")
+			localized_print ("  --exclude pattern           : exclude path (directory or file)%N")
+			localized_print ("  --exclude-directory pattern : exclude directory%N")
+			localized_print ("  --exclude-file pattern      : exclude filename%N")
+			localized_print ("  -s|--simulation             : simulating without any change on file%N")
+			localized_print ("  -v|--verbose                : display verbose output%N")
 		end
 
 end

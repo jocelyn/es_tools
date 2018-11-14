@@ -68,6 +68,60 @@ feature -- Element change
 			directories_count := 0
 		end
 
+feature -- System/process files
+
+	process (dn: PATH; on_file_action: PROCEDURE [PATH]; on_ignore_action: detachable PROCEDURE [PATH])
+		local
+			entry: PATH
+			l_path: PATH
+			l_file: FILE
+			ut: FILE_UTILITIES
+			d: DIRECTORY
+		do
+			directories_count := directories_count + 1
+			create d.make_with_path (dn)
+			across
+				d.entries as ic
+			loop
+				entry := ic.item
+				if not (entry.is_current_symbol or else entry.is_parent_symbol) then
+					if path_excluded (entry, dn) then
+						if on_ignore_action /= Void then
+							l_path := dn.extended_path (entry)
+							on_ignore_action (l_path)
+						end
+					else
+						l_path := dn.extended_path (entry)
+						create {RAW_FILE} l_file.make_with_path (l_path)
+						if l_file.is_directory then
+							if is_recursive then
+								if 
+									not directory_excluded (entry, dn) and then
+									ut.directory_path_exists (l_path)
+								then
+										-- Is included Directory
+									process (l_path, on_file_action, on_ignore_action)
+								else
+									if on_ignore_action /= Void then
+										on_ignore_action (l_path)
+									end
+								end
+							end
+						else
+								-- Is File
+							if file_excluded (entry, dn) then
+								if on_ignore_action /= Void then
+									on_ignore_action (l_path)
+								end
+							else
+								on_file_action (l_path)
+							end
+						end
+					end
+				end
+			end
+		end
+
 feature -- System/copy files
 
 	copy_directory (a_src: DIRECTORY; a_dest: DIRECTORY)
