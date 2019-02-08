@@ -130,6 +130,9 @@ feature -- Execution
 					end
 					args.forth
 				end
+				if l_targets.is_empty then
+					l_targets.force (execution_environment.current_working_path.name)
+				end
 				across
 					l_targets as c
 				loop
