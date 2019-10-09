@@ -21,8 +21,6 @@ feature {NONE} -- Initialization
 			path := a_path
 		end
 
-	path: PATH
-
 feature -- Status report
 
 	is_available: BOOLEAN
@@ -37,6 +35,10 @@ feature -- Status report
 feature -- Access
 
 	description: detachable IMMUTABLE_STRING_32
+
+feature {ES_COMMAND_MANAGER} -- Access
+
+	path: PATH
 
 feature -- Change
 

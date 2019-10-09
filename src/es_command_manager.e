@@ -76,8 +76,10 @@ feature -- Change
 				if attached command (n) as c then
 					if attached {ES_GROUP_COMMAND} c as l_parent then
 						l_parent.register (cmd, s)
+					elseif attached {ES_PATH_GROUP_COMMAND} c as l_path_grp then
+						localized_print_error ({STRING_32} "ERROR with %"" + a_name.to_string_8 + {STRING_32} "%": [" + n + "] already found at " + l_path_grp.path.name + {STRING_32} "!!!%N")
 					else
-						io.put_string ("ERROR [" + a_name.to_string_8 + "]!!!%N")
+						localized_print_error ({STRING_32} "ERROR with %"" + a_name.to_string_8 + {STRING_32} "%": [" + n + "] already registered (" + c.debug_output + ")!!!%N")
 					end
 				else
 					create g.make
